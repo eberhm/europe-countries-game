@@ -3,6 +3,8 @@
 **Juego interactivo para aprender y practicar los países de Europa**, desarrollado con **React**, **Vite** y **Tailwind CSS**.
 Ideal para estudiantes, docentes o cualquier persona que quiera mejorar geografía europea de forma amena.
 
+Puedes jugarlo Online aqui: https://eberhm.github.io/europe-countries-game/
+
 ---
 
 ## 🎯 Objetivo del juego
