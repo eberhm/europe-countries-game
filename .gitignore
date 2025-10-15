@@ -1,0 +1,49 @@
+# Node
+/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+/dist/
+/build/
+/out/
+/.parcel-cache/
+/.vite/
+.next/
+
+# TypeScript
+*.tsbuildinfo
+
+# Env files (except example)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Testing
+/coverage/
+/jest-cache/
+jest-results/
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.iml
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Misc
+.cache/
+.logs/
+*.log
+.eslintcache
+/.turbo/
