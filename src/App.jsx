@@ -74,8 +74,6 @@ const UI = {
     reveal: (name) => `Se revela: ${name} (0 puntos)`,
     tryAgain: "No es correcto. ¡Inténtalo de nuevo!",
     attempts: "Intentos",
-    languageLabel: "Lingua",
-    languages: { es: "Castelán", ca: "Catalán", val: "Valenciano", eu: "Éuscaro", gl: "Galego", oc: "Aranés" },
     languageLabel: "Idioma",
     languages: { es: "Castellano", ca: "Catalán", val: "Valenciano", eu: "Euskera", gl: "Gallego", oc: "Aranés" },
   },
@@ -111,17 +109,19 @@ const UI = {
     pending: "Pendents",
     placeholder: "Escriu el nom del país",
     check: "Comprovar",
-    reset: "Reiniciar",
+    reset: "Reinicia",
     rules: [
-      "+8 punts si encertes a la primera. Cada error resta 2 punts (mínim 0 per país).",
+      "+8 punts si l'encertes a la primera. Cada error resta 2 punts (mínim 0 per país).",
       "Amb 4 errors es revela el nom i el país queda en roig.",
       "La intensitat del verd disminuïx amb cada error abans d'encertar.",
-      "Enter en blanc: zoom al país actiu (×2, després ×3, i a la tercera es reinicia). No compta com a intent.",
+      "Enter buit: zoom al país actiu (×2, després ×3, i a la tercera es reinicia). No compta com a intent.",
     ],
     correct: (g) => `Correcte! +${g} punts`,
     reveal: (name) => `Es revela: ${name} (0 punts)`,
     tryAgain: "No és correcte. Torna-ho a intentar!",
     attempts: "Intents",
+    languageLabel: "Idioma",
+    languages: { es: "Castellà", ca: "Català", val: "Valencià", eu: "Euskera", gl: "Gallec", oc: "Aranés" },
   },
   eu: {
     title: "Jokoa: Europako Herrialdeak",
@@ -465,6 +465,18 @@ const ALLOWED_SET = new Set([
   "Albania","Andorra","Austria","Belarus","Belgium","Bosnia and Herzegovina","Bulgaria","Croatia","Cyprus","Czechia","Denmark","Estonia","Finland","France","Germany","Greece","Hungary","Iceland","Ireland","Italy","Latvia","Liechtenstein","Lithuania","Luxembourg","Malta","Moldova","Monaco","Montenegro","Netherlands","North Macedonia","Norway","Poland","Portugal","Romania","Russia","SanMarino","Serbia","Slovakia","Slovenia","Spain","Sweden","Switzerland","Ukraine","United Kingdom","Vatican","Kosovo",
 ]);
 
+// Zoom levels for specific countries (default is 1 for others)
+const COUNTRY_ZOOM_LEVELS = {
+  "SanMarino": 4,
+  "Vatican": 4,
+  "Liechtenstein": 4,
+  "Andorra": 4,
+  "Malta": 4,
+  "Cyprus": 3,
+  "Monaco": 6,
+  "Luxembourg": 2
+};
+
 function shuffle(arr) {
   const a = [...arr];
   for (let i = a.length - 1; i > 0; i--) {
@@ -629,6 +641,18 @@ export default function App() {
     return countries[order[idx]];
   }, [countries, order, idx]);
 
+  // Auto-zoom when current country changes
+  useEffect(() => {
+    if (!current) return;
+    const zoomLevel = COUNTRY_ZOOM_LEVELS[current.fixedName] || 1;
+    setMapZoom(zoomLevel);
+    if (zoomLevel > 1 && current.centroid && Array.isArray(current.centroid)) {
+      setMapCenter(current.centroid);
+    } else {
+      setMapCenter([15, 50]);
+    }
+  }, [current]);
+
   const pendingCount = useMemo(
     () => Object.values(statusByName).filter((s) => s.state === "pending").length,
     [statusByName]
@@ -650,9 +674,10 @@ export default function App() {
 
     // Enter en blanco: zoom → zoom → reset (no cuenta como intento)
     if (norm(input) === "") {
-      const nextZoom = mapZoom === 1 ? 2 : mapZoom === 2 ? 3 : 1;
+      const countryDefaultZoom = COUNTRY_ZOOM_LEVELS[current.fixedName] || 1;
+      const nextZoom = mapZoom === countryDefaultZoom ? countryDefaultZoom + 1 : mapZoom === countryDefaultZoom + 1 ? countryDefaultZoom + 2 : countryDefaultZoom;
       if (current.centroid && Array.isArray(current.centroid)) {
-        setMapCenter(nextZoom === 1 ? [15, 50] : current.centroid);
+        setMapCenter(nextZoom === countryDefaultZoom ? (countryDefaultZoom > 1 ? current.centroid : [15, 50]) : current.centroid);
       }
       setMapZoom(nextZoom);
       return; // no cuenta como intento
